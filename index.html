@@ -18,7 +18,7 @@
 
     div:has(#myFile) {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr;
+      grid-template-columns: 2fr 3fr 1fr 1fr;
       justify-content: center;
       padding: 24px;
       background-color: white;
@@ -101,7 +101,7 @@
 <body>
   <div id="header">
     <span>Import <input type="file" id="myFile" name="filename"></span>
-    <span>Name <input type="text" placeholder="new_table"></span>
+    <span>Name <input type="text" id='fileName' value="csvFile"></span>
     <span>New <button onclick="newTable()">Empty table</button></span>
     <span>Export <button onclick="download()">Download</button></span>
   </div>

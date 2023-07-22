@@ -6,6 +6,7 @@ let arrayData = JSON.parse(previousData)
 let keys = JSON.parse(previousKeys)
 createTable(arrayData)
 
+// load csv
 document.getElementById('myFile')
             .addEventListener('change', function() {
 
@@ -13,6 +14,7 @@ document.getElementById('myFile')
             fr.onload=function(){
               keys = Object.keys(serialize(fr.result)[0])
               createTable(serialize(fr.result))
+              document.getElementById('fileName').value = document.getElementById('myFile').files[0].name.replaceAll('.csv', '');
             }
 
             fr.readAsText(this.files[0]);
@@ -63,18 +65,21 @@ function save(dataObjArray) {
 }
 
 function newTable() {
-  previousData = `[{"id":"1"}]`;
-  arrayData = [{id:1}];
-  keys = ['id']
-  createTable(arrayData)
-  save(arrayData)
+  if (confirm('New table?')) {
+    previousData = `[{"id":"1"}]`;
+    arrayData = [{id:1}];
+    keys = ['id']
+    localStorage.setItem('previousKeys', JSON.stringify(keys))
+    createTable(arrayData)
+    save(arrayData)
+  }
 }
 
 function deserialize(arrayObj) {
   const array = []
-  array.push(Object.keys(arrayObj[0]));
+  array.push(keys);
   arrayObj.forEach((obj)=>{
-    const values = Object.values(obj).join()
+    const values = keys.map(key=>obj[key]).join()
     array.push(values)
   })
   return array.join('\r\n')
@@ -103,11 +108,13 @@ function createTable(arrayObj) {
 }
 
 function createRow(obj, keys) {
-const rowCells = keys.map((key)=>{
-  const convertedKey = convertKey(key);
-  return `<td id="${convertedKey}-${obj.id}"${key == 'id' ? '' : ' contenteditable="true" class="textarea" onfocus="addListener(this)" onblur="removeListener(this)"'}>${obj[convertedKey]}</td>`
-})
-  return `<tr>${rowCells.join('')}<td role="button" tabindex="0" class="minus-btn" onclick="removeRow(${obj.id})">-</td></tr>`
+  const rowCells = keys.map((key)=>createCell(obj, key))
+  const removeBtn = `<td role="button" tabindex="0" class="minus-btn" onclick="removeRow(${obj.id})">-</td>`
+  return `<tr>${rowCells.join('')}${removeBtn}</tr>`
+}
+
+function createCell(obj, key) {
+  return `<td id="${key}-${obj.id}"${key == 'id' ? '' : ' contenteditable="true" class="textarea" onfocus="addListener(this)" onblur="removeListener(this)"'}>${obj[key]}</td>`
 }
 
 function addListener(el) {
@@ -134,40 +141,43 @@ function removeListener(el) {
 
 function updateKey(el) {
   let currentKeys = Array.from(document.querySelectorAll('th')).slice(0, -1).map(th=>convertKey(th.innerText))
-  if (!currentKeys.includes(el.id)) {
-    const oldKey = el.id;
-    let key = convertKey(el.innerText)
-    // console.log(keys);
-    // console.log(currentKeys);
-    if (key == '') {
-      if (confirm("Delete header?")) {
-        currentKeys = currentKeys.filter(key=>key !== '')
-      } else {
-        key = oldKey
-        el.innerText = oldKey.replaceAll('_', ' ').toUpperCase();
-        console.log('cancel')
-      }
-    } else {
-      arrayData.forEach((obj)=>{
-        if (key !== oldKey) {
-          if (key !== '') obj[key] = obj[oldKey]
-          delete obj[oldKey]
-        }
-      })
-    }
-    save(arrayData);
+  const oldKey = el.id;
+  let key = convertKey(el.innerText)
 
-    localStorage.setItem('previousKeys', JSON.stringify(currentKeys))
-    keys = currentKeys
-    createTable(arrayData);
+  if (currentKeys.filter(cKey=>cKey == key).length > 1) {
+    key = oldKey
+    el.innerText = oldKey.replaceAll('_', ' ').toUpperCase();
+    alert('Header already in use.')
+    return
   }
+
+  if (key == '') {
+    if (confirm("Delete header?")) {
+      currentKeys = currentKeys.filter(key=>key !== '')
+    } else {
+      key = oldKey
+      el.innerText = oldKey.replaceAll('_', ' ').toUpperCase();
+    }
+  } else {
+    arrayData.forEach((obj)=>{
+      if (key !== oldKey) {
+        if (key !== '') obj[key] = obj[oldKey]
+        delete obj[oldKey]
+      }
+    })
+  }
+  save(arrayData);
+
+  localStorage.setItem('previousKeys', JSON.stringify(currentKeys))
+  keys = currentKeys
+  createTable(arrayData);
 }
 
 function download() {
+  const fileName = document.getElementById('fileName').value.replaceAll('.csv', '');
   const element = document.createElement('a');
-  const data = localStorage.getItem('db')
-  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(deserialize(JSON.parse(data))));
-  element.setAttribute('download', 'csvFile.csv');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(deserialize(arrayData)));
+  element.setAttribute('download', `${fileName}.csv`);
 
   element.style.display = 'none';
   document.body.appendChild(element);
@@ -179,12 +189,14 @@ function download() {
 
 function addColumn() {
   let key = prompt("Column name", `new_column_${Object.keys(arrayData[0]).length}`);
-  if (key !== null && key !== "") {
+  if (key !== null && key !== "" && !keys.includes(key)) {
     arrayData.forEach((objRow)=>objRow[key] = '');
     keys.push(convertKey(key))
     localStorage.setItem('previousKeys', JSON.stringify(keys))
     createTable(arrayData);
     save(arrayData);
+  } else {
+    alert('Invalid name.')
   }
 }
 
