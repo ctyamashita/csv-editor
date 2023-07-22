@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Serializer</title>
+  <script src="index.js"defer></script>
+  <style>
+    * {
+      font-family: monospace;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: lightgrey;
+    }
+
+    div:has(#myFile) {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      justify-content: center;
+      padding: 24px;
+      background-color: white;
+    }
+
+    #output {
+      overflow-y: scroll;
+      height: calc(100vh - 70px);
+      width: 100vw;
+    }
+
+    tr:has(th) {
+      position: sticky;
+      top: 1.5px;
+      z-index: 1;
+    }
+
+    th {
+      background-color: gold;
+      max-width: 180px;
+    }
+
+    .add-btn,
+    .minus-btn {
+      border-radius: 0 8px 8px 0;
+      width: 1em;
+      font-weight: bolder;
+      cursor: pointer;
+      outline: solid 2px;
+      outline-offset: -4px;
+      transition: .3s;
+    }
+
+    .add-btn:focus,
+    .minus-btn:focus,
+    .add-btn:hover,
+    .minus-btn:hover {
+      outline: solid 4px;
+      outline-offset: -4px;
+      transition: .3s;
+    }
+
+    tr:last-child td {
+      border-radius: 0 0 8px 8px;
+      font-weight: bolder;
+      width: 1em;
+    }
+
+    tr td:first-child {
+      background-color: gold;
+      position: sticky;
+      left: 1.5px;
+    }
+
+    td {
+      background-color: white;
+    }
+
+    td, th {
+      padding: 16px;
+      height:auto;
+      text-align: center;
+    }
+
+    button {
+      padding: 1px 6px;
+    }
+
+    #header span {
+      font-weight: bolder;
+      margin: 0 auto;
+    }
+
+    table {
+      margin: 0 auto;
+      padding: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div id="header">
+    <span>Import <input type="file" id="myFile" name="filename"></span>
+    <span>Name <input type="text" placeholder="new_table"></span>
+    <span>New <button onclick="newTable()">Empty table</button></span>
+    <span>Export <button onclick="download()">Download</button></span>
+  </div>
+  <div id="output"></div>
+</body>
+</html>
