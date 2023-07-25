@@ -4,6 +4,8 @@ let previousData = localStorage.getItem('db') || `[{"id":"1"}]`;
 let previousKeys = localStorage.getItem('previousKeys') || `["id"]`;
 let arrayData = JSON.parse(previousData)
 let keys = JSON.parse(previousKeys)
+let fileName = localStorage.getItem('fileName') || `csvFile`
+document.querySelector('#fileName').innerText = fileName;
 createTable(arrayData)
 
 // load csv
@@ -12,9 +14,13 @@ document.getElementById('myFile')
 
             var fr=new FileReader();
             fr.onload=function(){
-              keys = Object.keys(serialize(fr.result)[0])
-              createTable(serialize(fr.result))
-              document.getElementById('fileName').innerText = document.getElementById('myFile').files[0].name.replaceAll('.csv', '');
+              const importedData = serialize(fr.result)
+              keys = Object.keys(importedData[0])
+              createTable(importedData)
+              const fileName = document.getElementById('myFile').files[0].name.replaceAll('.csv', '');
+              document.getElementById('fileName').innerText = fileName;
+              localStorage.setItem('fileName', fileName);
+              save(importedData)
             }
 
             fr.readAsText(this.files[0]);
@@ -61,6 +67,8 @@ function save(dataObjArray) {
   localStorage.setItem('db', JSON.stringify(dataObjArray))
   previousData = JSON.stringify(dataObjArray);
   arrayData = dataObjArray
+  keys = Object.keys(dataObjArray[0]);
+  localStorage.setItem('previousKeys', JSON.stringify(keys))
 }
 
 function newTable() {
