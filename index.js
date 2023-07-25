@@ -4,9 +4,16 @@ let previousData = localStorage.getItem('db') || `[{"id":"1"}]`;
 let previousKeys = localStorage.getItem('previousKeys') || `["id"]`;
 let arrayData = JSON.parse(previousData)
 let keys = JSON.parse(previousKeys)
-let fileName = localStorage.getItem('fileName') || `csvFile`
+let fileName = localStorage.getItem('fileName') || `csvFile`;
+let shiftPressed = false
 document.querySelector('#fileName').innerText = fileName;
 createTable(arrayData)
+
+document.addEventListener('keyup', (e)=>{
+  shiftPressed = e.shiftKey;
+  if (e.key == 'r' && e.altKey) addRow();
+  if (e.key == 'c' && e.altKey) addColumn();
+})
 
 // load csv
 document.getElementById('myFile')
@@ -92,7 +99,7 @@ function deserialize(arrayObj) {
   return array.join('\r\n')
 }
 
-function createTable(arrayObj) {
+function createTable(arrayObj, el = false) {
   const table = document.createElement('table');
   const headerRow = document.createElement('tr');
   headerRow.innerHTML = `${keys.map((key)=>`<th${key == 'id' ? '' : ` id="${convertKey(key)}" contenteditable="true" class="textarea" onblur="updateKey(this)"`}>${key.replaceAll('_', ' ').toUpperCase()}</th>`).join('')}<th class="add-btn" role="button" tabindex="0" onclick="addColumn()">+</th>`;
@@ -112,6 +119,9 @@ function createTable(arrayObj) {
       }
     });
   })
+  if (el) {
+    document.querySelector(el.id !== '' ? `#${el.id}` : `.${el.classList.value}`).nextElementSibling.focus();
+  }
 }
 
 function createRow(obj, keys) {
@@ -179,7 +189,7 @@ function updateKey(el) {
 
   localStorage.setItem('previousKeys', JSON.stringify(currentKeys))
   keys = currentKeys
-  createTable(arrayData);
+  createTable(arrayData, el.previousElementSibling);
 }
 
 function download() {
@@ -202,7 +212,8 @@ function addColumn() {
     arrayData.forEach((objRow)=>objRow[key] = '');
     keys.push(convertKey(key))
     localStorage.setItem('previousKeys', JSON.stringify(keys))
-    createTable(arrayData);
+    const el = document.querySelectorAll('th');
+    createTable(arrayData, el[el.length - 2]);
     save(arrayData);
   } else {
     alert('Invalid name.')
