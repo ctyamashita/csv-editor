@@ -14,40 +14,163 @@
 
     body {
       background-color: lightgrey;
-    }
-
-    div:has(#myFile) {
-      display: grid;
-      grid-template-columns: 2fr 3fr 1fr 1fr;
-      justify-content: center;
-      padding: 24px;
-      background-color: white;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
     }
 
     #output {
-      overflow-y: scroll;
-      height: calc(100vh - 70px);
-      width: 100vw;
+      overflow: scroll;
+      flex-grow: 1;
+      border-radius: 12.5px 0 0 0;
+      margin: 0 auto;
+      max-width: calc(100vw - 14px);
+      transform: translateX(7px);
     }
 
-    tr:has(th) {
+    tr:has(th),
+    tr td:first-child {
+      background-color: gold;
       position: sticky;
+    }
+
+    tr td:first-child,
+    th {
+      box-shadow: 0 0 0 2px rosybrown;
+    }
+
+    tr th:last-child {
+      box-shadow: 0 0 0 2px rosybrown, 0px -10px 0 2px lightgrey;
+    }
+
+    tr th:first-child {
+      position: sticky;
+      z-index: 1;
+      background-color: gold;
+      left: 1.5px;
+    }
+
+    /* header row */
+    tr:has(th) {
       top: 1.5px;
       z-index: 1;
+      border-radius: 8px 8px 8px 0;
+    }
+    /* id column */
+    tr td:first-child {
+      left: 1.5px;
+    }
+
+    tr:last-child td {
+      border-radius: 0 0 8px 8px;
+      font-weight: bolder;
+    }
+
+    tr th:first-child {
+      border-radius: 10px 0 0 0;
     }
 
     th {
-      background-color: gold;
       max-width: 180px;
+    }
+
+    td {
+      background-color: white;
+      box-shadow: 0 0 0 2px lightgray;
+    }
+
+    td, th {
+      padding: 16px;
+      height:auto;
+      text-align: center;
+      color: saddlebrown;
+    }
+
+    button {
+      padding: 1px 6px;
+      width: 100%;
+    }
+
+    input {
+      border: none;
+      width: 100%;
+      background: gold;
+    }
+
+    input[type=file] {
+      display: none;
+    }
+
+    #header {
+      display: grid;
+      align-items: center;
+      padding: 12px;
+      background-color: white;
+      gap: 12px;
+      border-radius: 0;
+      margin: 0 0 12px 0;
+    }
+
+    @media (min-width: 574px) {
+      #header {
+        grid-template-columns: auto auto;
+        justify-content: center;
+        border-radius: 0 0 8px 8px;
+        margin: 0 auto 12px;
+      }
+    }
+
+    #header .yellow-btn,
+    #header .yellow-bg {
+      font-weight: bolder;
+      background: gold;
+      padding: 4px 8px;
+      border: solid 2px;
+      text-align: center;
+      border-radius: 4px;
+    }
+
+    #header .yellow-btn {
+      cursor: pointer;
+    }
+
+    .yellow-btn:hover,
+    .yellow-btn:focus {
+      transform: translate(-2px, -2px);
+      box-shadow: 2px 2px 0 0 black;
+    }
+
+    div:has(>.yellow-btn) {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 4px;
+    }
+
+    #fileName {
+      max-width: 80vw;
+      font-weight: 400;
+      border-left: solid 2px;
+      padding-left: 8px;
+    }
+
+    div:has(>#fileName) {
+      display: flex;
+      gap: 8px;
+    }
+
+    table {
+      margin: 0 auto;
     }
 
     .add-btn,
     .minus-btn {
       border-radius: 0 8px 8px 0;
-      width: 1em;
       font-weight: bolder;
+      font-size: 32px;
+      line-height: .65;
+      color: saddlebrown;
       cursor: pointer;
-      outline: solid 2px;
+      outline: solid 1px goldenrod;
       outline-offset: -4px;
       transition: .3s;
     }
@@ -61,50 +184,56 @@
       transition: .3s;
     }
 
-    tr:last-child td {
-      border-radius: 0 0 8px 8px;
-      font-weight: bolder;
-      width: 1em;
+
+    /* width */
+    ::-webkit-scrollbar {
+      width: 14px;
+      height: 14px;
     }
 
-    tr td:first-child {
-      background-color: gold;
-      position: sticky;
-      left: 1.5px;
+    /* Track */
+    ::-webkit-scrollbar-track {
+      background: transparent;
     }
 
-    td {
-      background-color: white;
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+      background: dimgray;
+      outline: solid 6px lightgray;
+      outline-offset: -3px;
     }
 
-    td, th {
-      padding: 16px;
-      height:auto;
-      text-align: center;
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+      background: saddlebrown;
     }
 
-    button {
-      padding: 1px 6px;
-    }
-
-    #header span {
-      font-weight: bolder;
-      margin: 0 auto;
-    }
-
-    table {
-      margin: 0 auto;
-      padding: 12px;
+    ::-webkit-scrollbar-corner {
+      background-color: transparent;
     }
   </style>
 </head>
 <body>
   <div id="header">
-    <span>Import <input type="file" id="myFile" name="filename"></span>
-    <span>Name <input type="text" id='fileName' value="csvFile"></span>
-    <span>New <button onclick="newTable()">Empty table</button></span>
-    <span>Export <button onclick="download()">Download</button></span>
-  </div>
+    <div class="yellow-bg">
+      <p>Name</p>
+      <div contenteditable="true" id="fileName">
+        csvFile
+      </div>
+    </div>
+    <div>
+      <label class="yellow-btn">
+        <input type="file" id="myFile"/>
+        <p>Import</p>
+      </label>
+      <div class="yellow-btn" onclick="newTable()">
+        <p>New</p>
+      </div>
+      <div class="yellow-btn" onclick="download()">
+        <p>Export</p>
+      </div>
+    </div>
+    </div>
   <div id="output"></div>
 </body>
 </html>

@@ -14,7 +14,7 @@ document.getElementById('myFile')
             fr.onload=function(){
               keys = Object.keys(serialize(fr.result)[0])
               createTable(serialize(fr.result))
-              document.getElementById('fileName').value = document.getElementById('myFile').files[0].name.replaceAll('.csv', '');
+              document.getElementById('fileName').innerText = document.getElementById('myFile').files[0].name.replaceAll('.csv', '');
             }
 
             fr.readAsText(this.files[0]);
@@ -23,9 +23,8 @@ document.getElementById('myFile')
 function convertKey(string) {
   return string.toLowerCase()
           .trim()
-          .replaceAll(' ', '_')
+          .replaceAll(/[- \n]/g, '_')
           .replaceAll('"', '')
-          .replaceAll('-', '_')
 }
 
 function commaHandler(string) {
@@ -144,6 +143,8 @@ function updateKey(el) {
   const oldKey = el.id;
   let key = convertKey(el.innerText)
 
+  if (oldKey == key) return
+
   if (currentKeys.filter(cKey=>cKey == key).length > 1) {
     key = oldKey
     el.innerText = oldKey.replaceAll('_', ' ').toUpperCase();
@@ -174,7 +175,7 @@ function updateKey(el) {
 }
 
 function download() {
-  const fileName = document.getElementById('fileName').value.replaceAll('.csv', '');
+  const fileName = document.getElementById('fileName').innerText.replaceAll('.csv', '') || 'file.csv';
   const element = document.createElement('a');
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(deserialize(arrayData)));
   element.setAttribute('download', `${fileName}.csv`);
